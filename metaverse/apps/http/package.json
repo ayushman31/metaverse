@@ -2,10 +2,11 @@
   "name": "http",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc -b",
     "start": "node dist/index.js",
-    "dev": ""
+    "dev": "pnpm run build && pnpm run start"
   },
   "keywords": [],
   "author": "",
