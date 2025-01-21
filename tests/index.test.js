@@ -1,40 +1,77 @@
-const { axios} = require("axios");
+const axios2 = require("axios");
 
-const BACKEND_URL = "https://localhost:3000";
+const BACKEND_URL = "http://localhost:3000";
 const WS_URL = "ws://localhost:3001";
+
+const axios = {
+  post: async (...args) => {
+      try {
+          const res = await axios2.post(...args)
+          return res
+      } catch(e) {
+          return e.response
+      }
+  },
+  get: async (...args) => {
+      try {
+          const res = await axios2.get(...args)
+          return res
+      } catch(e) {
+          return e.response
+      }
+  },
+  put: async (...args) => {
+      try {
+          const res = await axios2.put(...args)
+          return res
+      } catch(e) {
+          return e.response
+      }
+  },
+  delete: async (...args) => {
+      try {
+          const res = await axios2.delete(...args)
+          return res
+      } catch(e) {
+          return e.response
+      }
+  },
+}
+
+
 
 describe("Authentication" , () => {
   test('User is able to signup succesfully' , async () => {
-    const usernmame = `ayushman${Math.random()}`; 
+    const username = `ayushman${Math.random()}`; 
     const password = '123456';
 
     const response = await axios.post(`${BACKEND_URL}/api/v1/signup` , {
-      usernmame , password , type: 'admin'
+      username , password , type: 'admin'
     });
-    expect(response.statusCode).toBe(200);
+    expect(response.status).toBe(200);
 
     const updatedResponse = await axios.post(`${BACKEND_URL}/api/v1/signup` , {
-      usernmame, password, type:'admin'
+      username, password, type:'admin'
     });
-    expect(updatedResponse.statusCode).toBe(400);
+    expect(updatedResponse.status).toBe(400);
   });
 
   test('Signup request fails if the username is empty' , async() => {
-    const usernmame = `ayushman${Math.random()}`; 
-    
+    const username = `ayushman${Math.random()}`; 
+    const password = "123456";
 
     const response = await axios.post(`${BACKEND_URL}/api/v1/signup` , {
       password
     })
 
-    expect(response.statusCode).toBe(400)
+    expect(response.status).toBe(400)
   });
 
   test('Signin succeeds if the username and password is correct' , async() => {
     const username = `ayushman${Math.random()}`;
     const password = '123456';
 
-    await axios(`${BACKEND_URL}/api/v1/signup` ,{
+    await axios.post(`${BACKEND_URL}/api/v1/signup` ,{
       username , password , type: 'admin'
     } )
 
@@ -42,7 +79,7 @@ describe("Authentication" , () => {
       username , password
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.status).toBe(200);
     expect(response.data.token).toBeDefined();
   });
 
@@ -50,7 +87,7 @@ describe("Authentication" , () => {
     const username = `ayushman${Math.random()}`;
     const password = '123456';
 
-    await axios(`${BACKEND_URL}/api/v1/signup` ,{
+    await axios.post(`${BACKEND_URL}/api/v1/signup` ,{
       username , password , type: 'admin'
     } );
 
@@ -58,7 +95,7 @@ describe("Authentication" , () => {
       username: "Wrong username" , password
     });
 
-    expect(response.statusCode).toBe(403);
+    expect(response.status).toBe(403);
   })
 });
 
@@ -101,7 +138,7 @@ describe("Authentication" , () => {
 //       }
 //     })
 
-//     expect(response.statusCode).toBe(400);
+//     expect(response.status).toBe(400);
 //   });
 
 //   test("User is able to update their metadata with correct avatarId" , async() => {
@@ -113,7 +150,7 @@ describe("Authentication" , () => {
 //       }
 //     })
 
-//     expect(response.statusCode).toBe(200);
+//     expect(response.status).toBe(200);
 //   });
 
 //   test("User is not able to update their metadata if the auth header is not present" , async() => {
@@ -121,7 +158,7 @@ describe("Authentication" , () => {
 //       avatarId
 //     });
 
-//     expect(response.statusCode).toBe(403);
+//     expect(response.status).toBe(403);
 //   });
 // });
 
@@ -256,7 +293,7 @@ describe("Authentication" , () => {
 //     }
 //    })
 
-//    expect(spaceResponse.statusCode).toBe(200);
+//    expect(spaceResponse.status).toBe(200);
 //    expect(spaceResponse.data.spaceId).toBeDefined();
 //   });
 
@@ -270,7 +307,7 @@ describe("Authentication" , () => {
 //     }
 //    });
 
-//    expect(response.statusCode).toBe(200);
+//    expect(response.status).toBe(200);
 //    expect(response.data.spaceId).toBeDefined();
 //   });
 
@@ -283,7 +320,7 @@ describe("Authentication" , () => {
 //     }
 //    });
 
-//    expect(response.statusCode).toBe(400);
+//    expect(response.status).toBe(400);
 //    expect(response.data.spaceId).not.toBeDefined();
 //   });
 
@@ -303,7 +340,7 @@ describe("Authentication" , () => {
 //       }
 //     })
 
-//     expect(deleteResponse.statusCode).toBe(200)
+//     expect(deleteResponse.status).toBe(200)
 //   });
 
 //   test("User is not able to delete a space that does not exist" , async() => {
@@ -313,7 +350,7 @@ describe("Authentication" , () => {
 //       }
 //     });
 
-//     expect(deleteResponse.statusCode).toBe(400)
+//     expect(deleteResponse.status).toBe(400)
 //   })
 
 //   test("User is not able to delete a space created by another user" , async() => {
@@ -332,7 +369,7 @@ describe("Authentication" , () => {
 //       }
 //     })
 
-//     expect(deleteResponse.statusCode).toBe(403);
+//     expect(deleteResponse.status).toBe(403);
 //   });
 
 //   test("Admin has no spaces initially" , async() => {
@@ -362,7 +399,7 @@ describe("Authentication" , () => {
 //     }
 //   });
 
-//     expect(response.statusCode).toBe(200);
+//     expect(response.status).toBe(200);
 //     expect(response.data.spaces.length).not.toBe(0);
 //   })
 // });
@@ -459,7 +496,7 @@ describe("Authentication" , () => {
 //       }
 //     });
 
-//     expect(response.statusCode).toBe(400);
+//     expect(response.status).toBe(400);
 //   });
 
 //   tets("Correct spaceId returns all the elements" , async() => {
@@ -469,7 +506,7 @@ describe("Authentication" , () => {
 //       }
 //     });
 
-//     expect(response.statusCode).toBe(200);
+//     expect(response.status).toBe(200);
 //     expect(response.data.dimensions).toBe("100x200");
 //     expect(response.data.elements.length).toBe(2);
 //   });
@@ -506,7 +543,7 @@ describe("Authentication" , () => {
 //       }
 //     })
 
-//     expect(response.statusCode).toBe(400);
+//     expect(response.status).toBe(400);
 //   })
 
 //   test("Delete endpoint works as expected" , async() => {
@@ -621,10 +658,10 @@ describe("Authentication" , () => {
 //     }
 //    })
 
-//    expect(elementResponse.statusCode).toBe(400);
-//    expect(updateElementResponse.statusCode).toBe(400);
-//    expect(avatarResponse.statusCode).toBe(400);
-//    expect(mapResponse.statusCode).toBe(400);
+//    expect(elementResponse.status).toBe(400);
+//    expect(updateElementResponse.status).toBe(400);
+//    expect(avatarResponse.status).toBe(400);
+//    expect(mapResponse.status).toBe(400);
 //   });
 
 //   test("Admin is able to hit the admin endpoints" , async() =>{
@@ -676,9 +713,9 @@ describe("Authentication" , () => {
 //     }
 //   });
 
-//   expect(elementResponse.statusCode).toBe(200);
-//   expect(avatarResponse.statusCode).toBe(200);
-//   expect(mapResponse.statusCode).toBe(200);
+//   expect(elementResponse.status).toBe(200);
+//   expect(avatarResponse.status).toBe(200);
+//   expect(mapResponse.status).toBe(200);
 //   });
 
 //   test("Admin is able to update the element" , async() => {
@@ -697,7 +734,7 @@ describe("Authentication" , () => {
 //       "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE"	
 //     })
 
-//     expect(updateElementResponse.statusCode).toBe(200)
+//     expect(updateElementResponse.status).toBe(200)
 // });
 // });
 

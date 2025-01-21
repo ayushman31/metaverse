@@ -3,6 +3,9 @@ import { SigninSchema, SignupSchema } from "../../types/index.js";
 import {client} from "@repo/db/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { userRouter } from "./user.js";
+import { adminRouter } from "./admin.js";
+import { spaceRouter } from "./space.js";
 
 export const router = Router();
 
@@ -32,7 +35,7 @@ router.post("/signup" , async(req , res) => {
     }
 });
 
-router.get("/signin" , async (req  ,res) => {
+router.post("/signin" , async (req  ,res) => {
     const parsedData = SigninSchema.safeParse(req.body);
     if(!parsedData.success){
         res.status(403).json({message: "Validation failed"});
@@ -84,3 +87,6 @@ router.get("avatars" , (req , res) => {
 });
 
 
+router.use("/api/v1/user" , userRouter );
+router.use("/api/v1/admin" , adminRouter);
+router.use("/api/v1/space" , spaceRouter);
