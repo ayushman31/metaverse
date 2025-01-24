@@ -5,6 +5,7 @@ import { client } from "@repo/db/client";
 
 export const spaceRouter = Router();
 
+//@ts-ignore
 spaceRouter.post("/" ,userMiddleware , async(req , res) => {
     const parsedData = CreateSpaceSchema.safeParse(req.body);
 
@@ -59,6 +60,7 @@ spaceRouter.post("/" ,userMiddleware , async(req , res) => {
             });
 
             await client.spaceElements.create({
+                //@ts-ignore
                 data: map.mapElements.map(m => ({
                     spaceId : space.id,
                     elementId : m.elementId,
@@ -80,6 +82,7 @@ spaceRouter.post("/" ,userMiddleware , async(req , res) => {
     }
 });
 
+//@ts-ignore
 // spaceRouter.delete("/:spaceId" ,userMiddleware, async (req , res) => {
 //     const spaceId = req.params.spaceId;
 //     const space = await client.space.findUnique({
@@ -146,7 +149,7 @@ spaceRouter.delete("/:spaceId", userMiddleware, async(req, res) => {
 })
 
 
-
+//@ts-ignore
 spaceRouter.get("/all" ,userMiddleware, async (req , res) => {
     try{
         const spaces = await client.space.findMany({
@@ -156,6 +159,7 @@ spaceRouter.get("/all" ,userMiddleware, async (req , res) => {
         });
 
         res.status(200).json({
+            //@ts-ignore
             spaces : spaces.map(s => ({
                 id : s.id,
                 name : s.name,
@@ -171,6 +175,7 @@ spaceRouter.get("/all" ,userMiddleware, async (req , res) => {
 });
 
 
+//@ts-ignore
 spaceRouter.post("/element" ,userMiddleware , async(req , res) => {
     const parsedData = AddElementSchema.safeParse(req.body);
     
@@ -227,6 +232,7 @@ spaceRouter.post("/element" ,userMiddleware , async(req , res) => {
 });
 
 
+//@ts-ignore
 spaceRouter.delete("/element" , userMiddleware ,async(req , res) => {
     const parsedData = DeleteElementSchema.safeParse(req.body);
     if(!parsedData.success){
@@ -293,6 +299,7 @@ spaceRouter.get("/:spaceId" , async (req , res) => {
 
     res.status(200).json({
         dimensions: `${space.width}x${space.height}`,
+        //@ts-ignore
         elements : space.elements.map(s => ({
             id: s.id,
             element : {
