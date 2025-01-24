@@ -38,6 +38,10 @@ export const CreateElementSchema = z.object({
     static: z.boolean(),
 });
 
+export const DeleteElementSchema = z.object({
+    id : z.string()
+})
+
 export const UpdateElementSchema = z.object({
     imageUrl: z.string()
 });
