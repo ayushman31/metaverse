@@ -6,6 +6,7 @@ export const adminMiddleware = (req: Request , res: Response , next: NextFunctio
     const header = req.headers.authorization;
     const token = header?.split(" ")[1];
 
+
     if(!token){
         res.status(403).json({
             message: "Unauthorized"
@@ -20,7 +21,7 @@ export const adminMiddleware = (req: Request , res: Response , next: NextFunctio
                 message: "Unauthorized"
             })
             return;
-        }
+        }  
         req.userId = decodedData.userId;
         next();
     } catch(e){

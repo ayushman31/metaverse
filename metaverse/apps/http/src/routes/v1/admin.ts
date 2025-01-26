@@ -2,10 +2,11 @@ import { Router } from "express";
 import { CreateElementSchema, CreateMapSchema, CreaterAvatarSchema, UpdateElementSchema } from "../../types/index.js";
 import { client } from "@repo/db/client";
 import { adminMiddleware } from "../../middleware/admin.js";
-import { date } from "zod";
 
 export const adminRouter = Router();
-adminRouter.use(adminMiddleware)
+adminRouter.use(adminMiddleware);
+
+
 adminRouter.post("/element" , async (req , res) => {
     const parsedData = CreateElementSchema.safeParse(req.body);
     if(!parsedData.success){
@@ -110,13 +111,12 @@ adminRouter.post("/map" , async (req , res) => {
                 height : parseInt(parsedData.data.dimensions.split("x")[1]),
                 name : parsedData.data.name,
                 mapElements : {
-                    create : {
-                        elementId : parsedData.data.defaultElements.map( e => ({
-                            elementId : e.elementId,
-                            x : e.x,
-                            y : e.y
+                    create : parsedData.data.defaultElements.map( e => ({
+                                elementId : e.elementId,
+                                y : e.y,
+                                x : e.x,
                         }))
-                    }
+                    
                 }
             }
         });
@@ -125,7 +125,7 @@ adminRouter.post("/map" , async (req , res) => {
             id : map.id
         })
     } catch(e){
-        res.status(400).json({
+    res.status(400).json({
             message : "Validation failed"
         })
     }

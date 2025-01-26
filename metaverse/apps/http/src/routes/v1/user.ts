@@ -36,14 +36,17 @@ userRouter.post("/metadata" , userMiddleware , async (req , res) => {
     };
 });
 
-userRouter.get("/metadata/bulk" , async (req , res) => {
-    const userIdStr = req.query.ids as string;
+//@ts-ignore
+userRouter.get("/metadata/bulk"  ,  async (req , res) => {
+    const userIdStr = (req.query.ids ?? "[]") as string;
     const userIds = JSON.parse(userIdStr);
-
+    
     try{
         const metadata = await  client.user.findMany({
             where : {
-                id: userIds
+                id: {
+                    in : userIds
+                }
             },
             select: {
                 avatar: true,

@@ -48,7 +48,7 @@ router.post("/signin" , async (req  ,res) => {
                 username: parsedData.data.username
             }
         });
-
+    
         if(!user){
             res.status(403).json({
                 message: "User not found"
@@ -66,7 +66,7 @@ router.post("/signin" , async (req  ,res) => {
         const token = jwt.sign({
             userId: user.id,
             role: user.role
-        } , "JWTPASS123" ) 
+        } , "JWTPASS123" );
         
         res.json({
             token
@@ -78,15 +78,34 @@ router.post("/signin" , async (req  ,res) => {
     }
 });
 
-router.get("/elements" , (req , res) => {
+router.get("/elements" , async (req , res) => {
+    const elements = await client.element.findMany();
 
+    res.status(200).json({
+        //@ts-ignore
+        elements: elements.map(x => ({
+            id : x.id,
+            imageUrl : x.imageUrl,
+            width: x.width,
+            height : x.height,
+            static : x.static
+        }))
+    })
 });
 
-router.get("avatars" , (req , res) => {
-
+router.get("/avatars" , async (req , res) => {
+    const avatars = await client.avatar.findMany();
+    res.status(200).json({
+        //@ts-ignore
+        avatars: avatars.map( x => ({
+            id : x.id,
+            imageUrl : x.imageUrl,
+            name : x.name
+        }))
+    })
 });
 
 
-router.use("/api/v1/user" , userRouter );
-router.use("/api/v1/admin" , adminRouter);
-router.use("/api/v1/space" , spaceRouter);
+router.use("/user" , userRouter );
+router.use("/admin" , adminRouter);
+router.use("/space" , spaceRouter);

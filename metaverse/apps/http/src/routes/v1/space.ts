@@ -6,18 +6,19 @@ import { client } from "@repo/db/client";
 export const spaceRouter = Router();
 
 //@ts-ignore
-spaceRouter.post("/" ,userMiddleware , async(req , res) => {
+spaceRouter.post("/", userMiddleware, async (req, res) => {
+    
     const parsedData = CreateSpaceSchema.safeParse(req.body);
-
-    if(!parsedData.success){
-        res.status(400).json({
-            message: "Error"
+    
+    if (!parsedData.success) {
+        return res.status(400).json({
+            message: "Validation failed",
+            error: parsedData.error.errors // Log detailed validation errors
         });
-        return;
     }
 
-    try{
-        if(!parsedData.data.mapId){
+    try {
+        if (!parsedData.data.mapId) {
             const space = await client.space.create({
                 data: {
                     name: parsedData.data.name,
@@ -27,29 +28,29 @@ spaceRouter.post("/" ,userMiddleware , async(req , res) => {
                 }
             });
 
-            res.status(200).json({
+            return res.status(200).json({
                 spaceId: space.id
-            })
-            return;
-        };
+            });
+        }
 
         const map = await client.map.findFirst({
             where: {
                 id: parsedData.data.mapId,
-            } , 
+            },
             select: {
-                mapElements : true
+                mapElements: true,
+                width : true,
+                height : true
             }
         });
 
-        if(!map){
-            res.status(400).json({
+        if (!map) {
+            return res.status(400).json({
                 message: "Map does not exist"
-            })
-            return
-        };
+            });
+        }
 
-        let space = await client.$transaction( async() => {
+        let space = await client.$transaction(async () => {
             const space = await client.space.create({
                 data: {
                     name: parsedData.data.name,
@@ -59,94 +60,81 @@ spaceRouter.post("/" ,userMiddleware , async(req , res) => {
                 }
             });
 
-            await client.spaceElements.create({
+            await client.spaceElements.createMany({
                 //@ts-ignore
                 data: map.mapElements.map(m => ({
-                    spaceId : space.id,
-                    elementId : m.elementId,
-                    x : m.x,
-                    y : m.y,
+                    spaceId: space.id,
+                    elementId: m.elementId,
+                    x: m.x,
+                    y: m.y,
                 }))
-            })
+            });
 
             return space;
-        })
+        });
 
         res.status(200).json({
-            spaceId : space.id
-        })
-    } catch (e){
-        res.status(400).json({
-            message: "Error"
+            spaceId: space.id
+        });
+    } catch (e) {
+        res.status(500).json({
+            message: "Internal Server Error"
         });
     }
 });
 
+
 //@ts-ignore
-// spaceRouter.delete("/:spaceId" ,userMiddleware, async (req , res) => {
-//     const spaceId = req.params.spaceId;
-//     const space = await client.space.findUnique({
-//         where : {
-//             id : spaceId
-//         }
-//     });
-//     if(!space) {
-//         res.status(400).json({
-//             message : "Space does not exist"
-//         });
-//         return;
-//     }
-//     if(space.creatorId != req.userId) {
-//         res.status(403).json({
-//             message : "Unauthorized"
-//         });
-//         return;
-//     }
-
-//     try {
-//         await client.space.delete({
-//             where : {
-//                 id : spaceId,
-//                 creatorId: req.userId
-//             }
-//         });
-
-//         res.status(200).json({
-//             message : "Space deleted"
-//         })
-//     } catch(e){
-//         res.status(400).json({
-//             message : "Validation failed."
-//         })
-//     }
-// });
-
-spaceRouter.delete("/:spaceId", userMiddleware, async(req, res) => {
+spaceRouter.delete("/:spaceId" ,userMiddleware, async (req , res) => {
+    const spaceId = req.params.spaceId;
+    console.log("user token : " , req.userId);
+   
+    
+    
     const space = await client.space.findUnique({
-        where: {
-            id: req.params.spaceId
-        }, select: {
-            creatorId: true
+        where : {
+            id : spaceId
         }
-    })
-    if (!space) {
-        res.status(400).json({message: "Space not found"})
-        return
+    });
+
+    console.log("creator id : " , space.creatorId);
+    
+    
+    if(!space) {
+        res.status(400).json({
+            message : "Space does not exist"
+        });
+        return;
+    }
+    if(space.creatorId != req.userId) {
+        res.status(403).json({
+            message : "Unauthorized"
+        });
+        return;
     }
 
-    if (space.creatorId !== req.userId) {
-        console.log("code should reach here")
-        res.status(403).json({message: "Unauthorized"})
-        return
-    }
+    try {
+        await client.spaceElements.deleteMany({
+            where: {
+                spaceId: spaceId
+            }
+        });
+        await client.space.delete({
+            where : {
+                id : spaceId,
+                creatorId: req.userId
+            }
+        });
 
-    await client.space.delete({
-        where: {
-            id: req.params.spaceId
-        }
-    })
-    res.json({message: "Space deleted"})
-})
+        res.status(200).json({
+            message : "Space deleted"
+        })
+    } catch(e){
+        res.status(400).json({
+            message : "Validation failed."
+        })
+    }
+});
 
 
 //@ts-ignore
