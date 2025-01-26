@@ -49,7 +49,7 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
                 message: "Map does not exist"
             });
         }
-
+     
         let space = await client.$transaction(async () => {
             const space = await client.space.create({
                 data: {
@@ -87,18 +87,12 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
 //@ts-ignore
 spaceRouter.delete("/:spaceId" ,userMiddleware, async (req , res) => {
     const spaceId = req.params.spaceId;
-    console.log("user token : " , req.userId);
-   
-    
     
     const space = await client.space.findUnique({
         where : {
             id : spaceId
         }
     });
-
-    console.log("creator id : " , space.creatorId);
-    
     
     if(!space) {
         res.status(400).json({
