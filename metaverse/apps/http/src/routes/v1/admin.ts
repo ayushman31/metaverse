@@ -38,7 +38,12 @@ adminRouter.post("/element" , async (req , res) => {
 }); 
 
 adminRouter.put("/element/:elementId" , async (req , res) => {
+    console.log("----------------------------------------");
+    
     const parsedData = UpdateElementSchema.safeParse(req.body);
+
+    console.log(parsedData.data);
+    
     if(!parsedData.success){
         res.status(400).json({
             message : "Validation failed"
@@ -102,7 +107,8 @@ adminRouter.post("/map" , async (req , res) => {
         });
         return
     };
-
+    console.log("parsed data : " , parsedData.data);
+    
     try {
         const map = await client.map.create({
             data: {
@@ -113,18 +119,23 @@ adminRouter.post("/map" , async (req , res) => {
                 mapElements : {
                     create : parsedData.data.defaultElements.map( e => ({
                                 elementId : e.elementId,
-                                y : e.y,
                                 x : e.x,
+                                y : e.y,
                         }))
                     
                 }
             }
         });
 
+        console.log("map : " , map);
+        
+
         res.status(200).json({
             id : map.id
         })
     } catch(e){
+        console.log("error");
+        
     res.status(400).json({
             message : "Validation failed"
         })

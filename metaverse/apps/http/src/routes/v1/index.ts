@@ -11,10 +11,14 @@ export const router = Router();
 
 router.post("/signup" , async(req , res) => {
     const parsedData = SignupSchema.safeParse(req.body);
+
+    console.log(req.body);
+    
     if(!parsedData.success){
         res.status(400).json({message: "Validation failed"});
         return; 
     };
+    
 
     const hashedPassword = await bcrypt.hash(parsedData.data.password , 10)
     
